@@ -38,13 +38,14 @@ class TestHomeScreen extends StatelessWidget {
               },
               child: const Text("اختبار تغيير كلمة السر"),
             ),
-            TextButton(
-              onPressed: () {
-                // تسجيل الخروج والعودة لتسجيل الدخول
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              child: const Text("تسجيل الخروج", style: TextStyle(color: Colors.red)),
-            ),
+         TextButton(
+  onPressed: () async {
+    await context.read<AuthProvider>().logoutUser();
+    if (!context.mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
+  },
+  child: const Text("تسجيل الخروج", style: TextStyle(color: Colors.red)),
+),
           ],
         ),
       ),

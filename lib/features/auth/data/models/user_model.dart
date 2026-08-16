@@ -22,4 +22,14 @@ class UserModel {
       role: json['role'] ?? 'customer',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'first_name': firstName,
+      'last_name': lastName,
+      'role': role,
+    };
+  }
 }
