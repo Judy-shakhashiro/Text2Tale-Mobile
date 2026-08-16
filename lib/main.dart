@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:text2tale_mobile/features/auth/auth_gate.dart';
+import 'package:text2tale_mobile/features/auth/presentation/screens/home_screen.dart';
 import 'package:text2tale_mobile/features/auth/presentation/screens/test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_colors.dart';
@@ -11,6 +12,8 @@ import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/presentation/screens/signup_screen.dart';
 import 'features/auth/presentation/screens/forgot_password_screen.dart';
 import 'features/auth/presentation/screens/change_password_screen.dart';
+import 'features/auth/presentation/providers/subject_provider.dart';
+import 'features/auth/presentation/screens/my_subjects_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +28,7 @@ class Text2TaleApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SubjectProvider()),
       ],
       child: MaterialApp(
         title: 'Text2Tale',
@@ -45,14 +49,14 @@ class Text2TaleApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        // AuthGate بيقرر تلقائيًا: لو فيه جلسة محفوظة يدخل على طول للرئيسية، غير كده يعرض تسجيل الدخول
         home: const AuthGate(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/signup': (context) => const SignUpScreen(),
           '/forgot-password': (context) => const ForgotPasswordScreen(),
           '/change-password': (context) => const ChangePasswordScreen(),
-          '/home': (context) => const TestHomeScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/my-subjects': (context) => const MySubjectsScreen(),
         },
       ),
     );

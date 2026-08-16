@@ -5,7 +5,7 @@ import '../../data/models/subject_model.dart';
 
 class SubjectProvider extends ChangeNotifier {
   final SubjectRepository _repository = SubjectRepository();
-  
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -18,14 +18,14 @@ class SubjectProvider extends ChangeNotifier {
   List<SubjectModel> _availableSubjects = [];
   List<SubjectModel> get availableSubjects => _availableSubjects;
 
-  // جلب المواد التي اختارها الطالب مسبقاً (عند فتح الصفحة)
+  // جلب المواد التي سجّلها الطالب مسبقاً (عند فتح الصفحة)
   Future<void> fetchMySubjects() async {
     _setLoading(true);
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token') ?? '';
-      
-      _mySubjects = await _repository.manageChosenSubjects(token);
+
+      _mySubjects = await _repository.getChosenSubjects(token);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -40,7 +40,7 @@ class SubjectProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token') ?? '';
-      
+
       _availableSubjects = await _repository.getAllSubjects(token);
     } catch (e) {
       debugPrint(e.toString());
@@ -52,17 +52,22 @@ class SubjectProvider extends ChangeNotifier {
 
   // حفظ المواد المختارة
   Future<String?> saveSelectedSubjects(List<int> selectedIds) async {
+    if (selectedIds.isEmpty) return 'اختر مادة واحدة على الأقل';
+
     _isSelectionLoading = true;
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token') ?? '';
-      
-      // نرسل التحديث، والـ API سيعيد القائمة المحدثة
-      _mySubjects = await _repository.manageChosenSubjects(token, selectedIds: selectedIds);
+
+      await _repository.chooseSubjects(token, selectedIds);
+
+      // إعادة جلب القائمة الكاملة والمحدّثة من نقطة الجلب المخصّصة
+      await fetchMySubjects();
+
       return null; // نجاح
     } catch (e) {
-      return 'حدث خطأ أثناء حفظ المواد';
+      return e.toString().replaceAll('Exception: ', '');
     } finally {
       _isSelectionLoading = false;
       notifyListeners();

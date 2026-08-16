@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:text2tale_mobile/core/theme/app_colors.dart';
 import 'package:text2tale_mobile/features/auth/presentation/providers/auth_provider.dart';
+import 'package:text2tale_mobile/features/auth/presentation/screens/home_screen.dart';
 import 'package:text2tale_mobile/features/auth/presentation/screens/login_screen.dart';
-import 'package:text2tale_mobile/features/auth/presentation/screens/test.dart';
-
 
 class AuthGate extends StatefulWidget {
   const AuthGate({Key? key}) : super(key: key);
@@ -34,6 +33,6 @@ class _AuthGateState extends State<AuthGate> {
       );
     }
 
-    return authProvider.isLoggedIn ? const TestHomeScreen() : const LoginScreen();
+    return authProvider.isLoggedIn ? const HomeScreen() : const LoginScreen();
   }
 }

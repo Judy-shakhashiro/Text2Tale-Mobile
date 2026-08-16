@@ -21,25 +21,32 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _accessToken != null;
 
   // تُستدعى مرة واحدة عند بدء تشغيل التطبيق (من AuthGate) للتحقق من وجود توكن محفوظ
-  Future<void> checkAuthStatus() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('access_token');
-      final userJson = prefs.getString('current_user');
+Future<void> checkAuthStatus() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    
+    final allKeys = prefs.getKeys();
+    print('ALL KEYS VISIBLE TO FLUTTER: $allKeys');  // ← ضيف ده
 
-      if (token != null && token.isNotEmpty) {
-        _accessToken = token;
-        if (userJson != null) {
-          _currentUser = UserModel.fromJson(jsonDecode(userJson));
-        }
+    final token = prefs.getString('access_token');
+    final userJson = prefs.getString('current_user');
+    print('AUTH CHECK - TOKEN: $token');
+    print('AUTH CHECK - USER JSON: $userJson');
+
+    if (token != null && token.isNotEmpty) {
+      _accessToken = token;
+      if (userJson != null) {
+        _currentUser = UserModel.fromJson(jsonDecode(userJson));
       }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      _isCheckingAuth = false;
-      notifyListeners();
     }
+  } catch (e) {
+    print('AUTH CHECK ERROR: $e');   // ← وده كمان، مهم جدًا لو فيه استثناء متبلع
+    debugPrint(e.toString());
+  } finally {
+    _isCheckingAuth = false;
+    notifyListeners();
   }
+}
 
   // تسجيل الدخول
   Future<String?> loginUser(String email, String password) async {
@@ -120,6 +127,7 @@ class AuthProvider extends ChangeNotifier {
 
   // حفظ التوكنز وبيانات المستخدم معًا محليًا
   Future<void> _saveSession(String accessToken, String refreshToken, UserModel? user) async {
+    print('SAVING SESSION - ACCESS TOKEN: $accessToken');
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', accessToken);
     await prefs.setString('refresh_token', refreshToken);
@@ -128,6 +136,7 @@ class AuthProvider extends ChangeNotifier {
     }
     _accessToken = accessToken;
     _currentUser = user;
+      print('SESSION SAVED SUCCESSFULLY');
   }
   // إعادة تعيين كلمة المرور المنسية
   Future<String?> resetPassword({

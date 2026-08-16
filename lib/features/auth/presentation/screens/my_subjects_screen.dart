@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:text2tale_mobile/core/theme/app_colors.dart';
+import 'package:text2tale_mobile/core/widgets/auth_header.dart';
 import 'package:text2tale_mobile/core/widgets/subject_selection_bottom_sheet.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../providers/subject_provider.dart';
-
 
 class MySubjectsScreen extends StatefulWidget {
   const MySubjectsScreen({Key? key}) : super(key: key);
@@ -16,7 +16,6 @@ class _MySubjectsScreenState extends State<MySubjectsScreen> {
   @override
   void initState() {
     super.initState();
-    // جلب مواد الطالب الحالية عند فتح الصفحة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SubjectProvider>().fetchMySubjects();
     });
@@ -37,19 +36,33 @@ class _MySubjectsScreenState extends State<MySubjectsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text("موادي الدراسية", style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
+      body: Column(
+        children: [
+          const AuthHeader(
+            icon: Icons.menu_book_rounded,
+            title: "موادي الدراسية",
+            subtitle: "اختر المواد التي تدرسها لتبدأ بتحويل دروسها إلى قصص.",
+            showBackButton: true,
+          ),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
+                ),
+              ),
+              child: provider.isLoading
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  : provider.mySubjects.isEmpty
+                      ? _buildEmptyState()
+                      : _buildSubjectsGrid(provider),
+            ),
+          ),
+        ],
       ),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : provider.mySubjects.isEmpty
-              ? _buildEmptyState()
-              : _buildSubjectsGrid(provider),
-      
-      // زر عائم يظهر فقط إذا كان لدى الطالب مواد مسبقاً، ليتمكن من إضافة المزيد
       floatingActionButton: provider.mySubjects.isNotEmpty
           ? FloatingActionButton(
               onPressed: _openSelectionSheet,
@@ -60,7 +73,6 @@ class _MySubjectsScreenState extends State<MySubjectsScreen> {
     );
   }
 
-  // UX: تصميم الحالة الفارغة
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -100,14 +112,13 @@ class _MySubjectsScreenState extends State<MySubjectsScreen> {
     );
   }
 
-  // UX: تصميم شبكة المواد بعد إضافتها
   Widget _buildSubjectsGrid(SubjectProvider provider) {
     return RefreshIndicator(
       onRefresh: provider.fetchMySubjects,
       child: GridView.builder(
         padding: const EdgeInsets.all(24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // عمودين
+          crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           childAspectRatio: 1.1,
@@ -119,6 +130,7 @@ class _MySubjectsScreenState extends State<MySubjectsScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.inputBorder.withOpacity(0.5)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.05),
